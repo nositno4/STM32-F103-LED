@@ -94,7 +94,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    HAL_Delay(3000);                           // 
+    HAL_Delay(2000);                           // 
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);   // 切换PC13引脚状态（亮灭）
     /* USER CODE END WHILE */
 

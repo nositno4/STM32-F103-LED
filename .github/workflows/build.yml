@@ -1,46 +1,36 @@
 name: 编译固件
 
-on:
-  workflow_dispatch:
+on: [workflow_dispatch, push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     
+    env:
+      GCC_URL: https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-mingw-w64-x86_64-arm-none-eabi.zip
+
     steps:
-    - name: checkout 项目代码
-      uses: actions/checkout@v4
-    
-    # 使用缓存加速工具链部署
+    - uses: actions/checkout@v4
+
     - name: 缓存 ARM 工具链
       id: cache-arm-toolchain
       uses: actions/cache@v4
       with:
-        path: |
-          ~/gcc-arm-none-eabi
-        key: ${{ runner.os }}-arm-toolchain
+        path: C:\arm-gnu-toolchain
+        key: ${{ runner.os }}-arm-toolchain-${{ env.GCC_URL }}
 
-    - name: ARM 工具链 (网络)
-      id: install-arm-toolchain
+    - name: 下载并安装 ARM 工具链
       if: steps.cache-arm-toolchain.outputs.cache-hit != 'true'
-      continue-on-error: true  # 允许此步骤失败后继续
+      shell: pwsh
       run: |
-          wget -O arm-gnu-toolchain.tar.bz2 \
-             "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2"; 
-          mkdir -p ~/gcc-arm-none-eabi
-          tar xjf arm-gnu-toolchain.tar.bz2 -C ~/gcc-arm-none-eabi --strip-components 1
-
-    - name: 添加 ARM 工具链(网络)到 PATH
-      run: echo "$HOME/gcc-arm-none-eabi/bin" >> $GITHUB_PATH
-
-    - name: ARM 工具链(系统)
-      if: steps.cache-arm-toolchain.outputs.cache-hit != 'true' && steps.install-arm-toolchain.outcome == 'failure'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi
+        Invoke-WebRequest "${{ env.GCC_URL }}" -OutFile "gcc.zip"
+        Expand-Archive gcc.zip C:\arm-gnu-toolchain -Force; Remove-Item gcc.zip
 
     - name: 执行编译任务
-      run: make
+      shell: cmd
+      run: |
+        set GCC_PATH=C:/arm-gnu-toolchain/bin
+        make
 
     - name: 上传固件
       uses: actions/upload-artifact@v4
