@@ -1,0 +1,77 @@
+{
+    "version": "2.0.0",
+    "tasks": [ // 启动 openocd 调试
+        {
+            "label": "start openocd",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "openocd.cfg",
+                "-c",
+                "init; reset halt;",
+            ],
+            "group": "test",
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^(Error)"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Open On-Chip Debugger",
+                    "endsPattern": "Listening on port"
+                }
+            },
+            "presentation": {
+                "clear": true,
+                "showReuseMessage": false,
+            },
+        },
+        {   // 关闭 openocd 调试
+            "label": "stop openocd",
+            "type": "shell",
+            "command": "taskkill /F /IM openocd.exe",
+            "group": "test",
+            "presentation": {
+                "clear": true,
+                "showReuseMessage": false,
+                "close": true,
+                "reveal": "never"
+            },
+        },
+        {   // 烧录程序
+            "label": "flash",
+            "type": "shell",
+            "command": "openocd",
+            "args": [
+                "-d1", // 日志 warning 级别
+                "-f",
+                "openocd.cfg",
+                "-c",
+                "program build/${workspaceFolderBasename}.elf verify reset exit"
+            ],
+            "group": "build",
+            "dependsOn": ["make"],
+            "presentation": {
+                "clear": true,
+                "showReuseMessage": false,
+            },
+        },
+        {   // 编译程序
+            "label": "make",
+            "type": "shell",
+            "command": "make",
+            "group": "build",
+            "args": [
+                "-s",
+                "-C",
+                "${workspaceFolder}"
+            ],
+            "problemMatcher": "$gcc",
+            "presentation": {
+                "showReuseMessage": false,
+            },
+        }
+    ]
+}

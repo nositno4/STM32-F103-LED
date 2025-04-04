@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "ARM",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${workspaceFolderBasename}.elf",
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "arm-none-eabi-gdb.exe",
+            "miDebuggerServerAddress": "localhost:3333",
+            "preLaunchTask": "start openocd",
+            "postDebugTask": "stop openocd",
+            "svdPath": "${workspaceFolder}/STM32F103.svd",
+        },
+    ]
+}
